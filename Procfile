@@ -1,1 +1,1 @@
-web: python tesco-scraper.py
+worker: python tesco-scraper.py
