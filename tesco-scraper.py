@@ -8,6 +8,9 @@ from selenium.common.exceptions import InvalidSessionIdException
 from seleniumrequests import Chrome
 from timeloop import Timeloop
 from twilio.rest import Client
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 import os
 
 tl = Timeloop()
@@ -48,8 +51,23 @@ class TescoScraper:
 
         self.driver = Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
 
-    def sendEmail(self):
-        print("sending email")
+    def sendEmail(self, location: str, date):
+        send_grid_key = os.environ.get('send_grid')
+
+        message = Mail(
+            from_email='tesco-notifier@example.com',
+            to_emails='boarder.kite@gmail.com',
+            subject=f'Tesco Delivery slot available {location} at {date}',
+            html_content=f'<strong>Avail in {location} at {date}</strong>')
+        try:
+            sg = SendGridAPIClient(send_grid_key)
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e)
+
 
     def sendTextMessage(self, collectionOrDelivery, location, date, button_details):
 
@@ -151,7 +169,7 @@ class TescoScraper:
 if __name__ == '__main__':
     scraper = TescoScraper()
     scraper.setupSelenium()
-
+    scraper.sendEmail("testing email", datetime.now())
 
     @tl.job(interval=timedelta(minutes=10))
     def run():

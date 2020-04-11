@@ -2,4 +2,4 @@ selenium-requests
 selenium
 timeloop
 twilio
-sendmail
+sendgrid
