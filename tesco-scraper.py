@@ -112,7 +112,12 @@ class TescoScraper:
             for tesco_location in self.locations:
                 # try to search for collection slots first of all
                 grocery_collection_url = self.collection_url_with_date % (start_date, tesco_location)
-                self.driver.get(grocery_collection_url)
+
+                try:
+                    self.driver.get(grocery_collection_url)
+                except InvalidSessionIdException:
+                    print("Invalid session not sure why")
+                    return
 
                 try:
                     buttons = WebDriverWait(self.driver, 5).until(
