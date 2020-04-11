@@ -36,12 +36,12 @@ class TescoScraper:
     driver = None
 
     def setupSelenium(self):
-        GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google_chrome'
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        chrome_options.binary_location = GOOGLE_CHROME_PATH
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
         chrome_options.add_argument(
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"')
 
