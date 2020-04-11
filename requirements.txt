@@ -1,3 +1,4 @@
-django
-gunicorn
-django-heroku
+selenium-requests
+selenium
+timeloop
+twilio
