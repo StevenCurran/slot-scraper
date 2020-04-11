@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import InvalidSessionIdException
 from seleniumrequests import Chrome
 from timeloop import Timeloop
 from twilio.rest import Client
@@ -39,7 +40,7 @@ class TescoScraper:
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
         chrome_options.add_argument(
@@ -123,8 +124,14 @@ class TescoScraper:
                     var = True
                     # nothing found
 
+
+            try:
+                self.driver.get(self.delivery_url_with_date % start_date)
+            except InvalidSessionIdException:
+                print("Invalid session not sure why")
+                return
+
             # try to search for delivery slots next
-            self.driver.get(self.delivery_url_with_date % start_date)
             try:
                 buttons = WebDriverWait(self.driver, 5).until(
                     lambda driver: driver.find_elements_by_class_name("available-slot--button"))
