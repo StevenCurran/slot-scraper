@@ -15,9 +15,7 @@ import os
 
 tl = Timeloop()
 
-
 class TescoScraper:
-    # Constants
 
     email = os.environ.get('tesco_email')
     pw = os.environ.get('tesco_password')
@@ -173,8 +171,17 @@ if __name__ == '__main__':
 
     @tl.job(interval=timedelta(minutes=10))
     def run():
-        if not scraper.is_logged_id():
+
+        try:
+            if not scraper.is_logged_id():
+                scraper.loginToTesco()
+        except InvalidSessionIdException:
+            print("Quiting the driver")
+            scraper.driver.quit()
+            print("Exception logging in, rebuild the scraper")
+            scraper.setupSelenium()
             scraper.loginToTesco()
+
         scraper.scanForSlots()
 
 
