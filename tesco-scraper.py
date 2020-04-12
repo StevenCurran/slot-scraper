@@ -131,7 +131,9 @@ class TescoScraper:
 
                 try:
                     self.driver.get(grocery_collection_url)
-                except InvalidSessionIdException:
+                except Exception as e:
+                    print("Exception caught from delivery load")
+                    print(e)
                     print("Invalid session not sure why")
                     return
 
@@ -148,7 +150,9 @@ class TescoScraper:
 
             try:
                 self.driver.get(self.delivery_url_with_date % start_date)
-            except InvalidSessionIdException:
+            except Exception as e:
+                print("Exception caught from delivery load")
+                print(e)
                 print("Invalid session not sure why")
                 return
 
