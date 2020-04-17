@@ -72,7 +72,7 @@ class TescoScraper:
         account_sid = os.environ.get('twilio_id')
         client = Client(account_sid, self.twilio_auth)
 
-        text_message = collectionOrDelivery + "Tesco Slot Available @ " + location + " at date " + button_details
+        text_message = collectionOrDelivery + "Tesco Slot Available @ " + location + " at date " + date + button_details
         print(collectionOrDelivery + text_message + str(datetime.now()))
 
         for number in self.phone_numbers:
@@ -114,6 +114,9 @@ class TescoScraper:
         time.sleep(5)
         print("Login Complete")
 
+
+
+
     def scanForSlots(self):
         print("scanning " + str(datetime.now()))
 
@@ -147,6 +150,24 @@ class TescoScraper:
                     var = True
                     # nothing found
 
+            try:
+                self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 1))
+            except Exception as e:
+                print("Exception caught from delivery load at slow group")
+                print(e)
+                print("Invalid session not sure why")
+                return
+
+            # try to search for delivery slots next
+            try:
+                buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
+                buttons = [b for b in buttons if b.text is not '']
+                print([b.text for b in buttons])
+                buttons[-1].click()
+                button_details = buttons[-1].text
+                self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
+            except:
+                var = True
 
             try:
                 self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 4))
@@ -158,26 +179,9 @@ class TescoScraper:
 
             # try to search for delivery slots next
             try:
-                buttons = WebDriverWait(self.driver, 5).until(
-                    lambda driver: driver.find_elements_by_class_name("available-slot--button"))
-                buttons[-1].click()
-                button_details = buttons[-1].text
-                self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
-            except:
-                var = True
-
-            try:
-                self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 1))
-            except Exception as e:
-                print("Exception caught from delivery load at slow group")
-                print(e)
-                print("Invalid session not sure why")
-                return
-
-            # try to search for delivery slots next
-            try:
-                buttons = WebDriverWait(self.driver, 5).until(
-                    lambda driver: driver.find_elements_by_class_name("available-slot--button"))
+                buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
+                buttons = [b for b in buttons if b.text is not '']
+                print([b.text for b in buttons])
                 buttons[-1].click()
                 button_details = buttons[-1].text
                 self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
