@@ -89,8 +89,8 @@ class TescoScraper:
         exit(1)
 
     def is_logged_id(self):
-        self.driver.get(self.login_page)
         try:
+            self.driver.get(self.login_page)
             slot_message = WebDriverWait(self.driver, 10).until(
                 lambda driver: self.driver.find_element_by_id("username"))
             return False
@@ -127,7 +127,11 @@ class TescoScraper:
         next_week = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
         fortnite = (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')
 
-        self.driver.get("https://www.tesco.com/groceries/en-GB/slots/collection")
+        try:
+            self.driver.get("https://www.tesco.com/groceries/en-GB/slots/collection")
+        except:
+            print("Failure gotta return early")
+            return
 
         for start_date in [today, next_week, fortnite]:
             # Scan 3 week window
@@ -139,8 +143,6 @@ class TescoScraper:
                     self.driver.get(grocery_collection_url)
                 except Exception as e:
                     print("Exception caught from delivery load")
-                    print(e)
-                    print("Invalid session not sure why")
                     return
 
                 try:
@@ -148,7 +150,9 @@ class TescoScraper:
                         lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                     buttons = [b for b in buttons if b.text is not '']
                     if len(buttons) > 0:
-                        print([b.text for b in buttons])
+                        print("Collection for " + start_date + " at" + tesco_location)
+                        [print(b.txext) for b in buttons]
+                        print()
                         if os.environ.get('auto_book_enabled') == '1':
                             buttons[-1].click()
                         button_details = buttons[-1].text
@@ -161,8 +165,6 @@ class TescoScraper:
                 self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 1))
             except Exception as e:
                 print("Exception caught from delivery load at slow group")
-                print(e)
-                print("Invalid session not sure why")
                 return
 
             # try to search for delivery slots next
@@ -170,7 +172,9 @@ class TescoScraper:
                 buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                 buttons = [b for b in buttons if b.text is not '']
                 if len(buttons) > 0:
-                    print([b.text for b in buttons])
+                    print("Home delivery for " + start_date)
+                    [print(b.txext) for b in buttons]
+                    print()
                     if os.environ.get('auto_book_enabled') == '1':
                         buttons[-1].click()
                     button_details = buttons[-1].text
@@ -191,7 +195,9 @@ class TescoScraper:
                 buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                 buttons = [b for b in buttons if b.text is not '']
                 if len(buttons) > 0:
-                    print([b.text for b in buttons])
+                    print("Home delivery for " + start_date)
+                    [print(b.txext) for b in buttons]
+                    print()
                     if os.environ.get('auto_book_enabled') == '1':
                         buttons[-1].click()
                     button_details = buttons[-1].text
@@ -204,7 +210,6 @@ class TescoScraper:
 if __name__ == '__main__':
     scraper = TescoScraper()
     scraper.setupSelenium()
-    scraper.sendEmail("testing email", datetime.now())
 
     @tl.job(interval=timedelta(minutes=10))
     def run():
