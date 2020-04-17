@@ -31,7 +31,7 @@ class TescoScraper:
     print(phone_numbers)
 
     login_page = "https://secure.tesco.com/account/en-GB/login"
-    delivery_url_with_date = "https://www.tesco.com/groceries/en-GB/slots/delivery/%s?slotGroup=4"
+    delivery_url_with_date_and_slot_group = "https://www.tesco.com/groceries/en-GB/slots/delivery/%s?slotGroup=%s"
     collection_url_with_date = "https://www.tesco.com/groceries/en-GB/slots/collection/%s?locationId=%s&postcode=&slotGroup=4"
     unavail_status = ["Unavailable", "UnAvailable", "UNAvailable"]
 
@@ -149,9 +149,27 @@ class TescoScraper:
 
 
             try:
-                self.driver.get(self.delivery_url_with_date % start_date)
+                self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 4))
             except Exception as e:
                 print("Exception caught from delivery load")
+                print(e)
+                print("Invalid session not sure why")
+                return
+
+            # try to search for delivery slots next
+            try:
+                buttons = WebDriverWait(self.driver, 5).until(
+                    lambda driver: driver.find_elements_by_class_name("available-slot--button"))
+                buttons[-1].click()
+                button_details = buttons[-1].text
+                self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
+            except:
+                var = True
+
+            try:
+                self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 1))
+            except Exception as e:
+                print("Exception caught from delivery load at slow group")
                 print(e)
                 print("Invalid session not sure why")
                 return
