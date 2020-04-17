@@ -41,8 +41,9 @@ class TescoScraper:
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
         chrome_options.add_argument(
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"')
@@ -68,11 +69,13 @@ class TescoScraper:
 
 
     def sendTextMessage(self, collectionOrDelivery, location, date, button_details):
+        if os.environ.get('text_enabled') == '0':
+            return
 
         account_sid = os.environ.get('twilio_id')
         client = Client(account_sid, self.twilio_auth)
 
-        text_message = collectionOrDelivery + "Tesco Slot Available @ " + location + " at date " + date + button_details
+        text_message = collectionOrDelivery + " Tesco Slot Available @ " + location + " at date " + button_details
         print(collectionOrDelivery + text_message + str(datetime.now()))
 
         for number in self.phone_numbers:
@@ -143,9 +146,13 @@ class TescoScraper:
                 try:
                     buttons = WebDriverWait(self.driver, 5).until(
                         lambda driver: driver.find_elements_by_class_name("available-slot--button"))
-                    buttons[-1].click()
-                    button_details = buttons[-1].text
-                    self.sendTextMessage(tesco_location, "Collection", start_date, button_details)
+                    buttons = [b for b in buttons if b.text is not '']
+                    if len(buttons) > 0:
+                        print([b.text for b in buttons])
+                        if os.environ.get('auto_book_enabled') == '1':
+                            buttons[-1].click()
+                        button_details = buttons[-1].text
+                        self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
                 except:
                     var = True
                     # nothing found
@@ -162,10 +169,12 @@ class TescoScraper:
             try:
                 buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                 buttons = [b for b in buttons if b.text is not '']
-                print([b.text for b in buttons])
-                buttons[-1].click()
-                button_details = buttons[-1].text
-                self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
+                if len(buttons) > 0:
+                    print([b.text for b in buttons])
+                    if os.environ.get('auto_book_enabled') == '1':
+                        buttons[-1].click()
+                    button_details = buttons[-1].text
+                    self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
             except:
                 var = True
 
@@ -181,10 +190,12 @@ class TescoScraper:
             try:
                 buttons = WebDriverWait(self.driver, 5).until(lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                 buttons = [b for b in buttons if b.text is not '']
-                print([b.text for b in buttons])
-                buttons[-1].click()
-                button_details = buttons[-1].text
-                self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
+                if len(buttons) > 0:
+                    print([b.text for b in buttons])
+                    if os.environ.get('auto_book_enabled') == '1':
+                        buttons[-1].click()
+                    button_details = buttons[-1].text
+                    self.sendTextMessage("Home Delivery", "Delivery", start_date, button_details)
             except:
                 var = True
 
