@@ -41,7 +41,7 @@ class TescoScraper:
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
@@ -89,8 +89,8 @@ class TescoScraper:
         exit(1)
 
     def is_logged_id(self):
+        self.driver.get(self.login_page)
         try:
-            self.driver.get(self.login_page)
             slot_message = WebDriverWait(self.driver, 10).until(
                 lambda driver: self.driver.find_element_by_id("username"))
             return False
@@ -127,11 +127,7 @@ class TescoScraper:
         next_week = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
         fortnite = (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')
 
-        try:
-            self.driver.get("https://www.tesco.com/groceries/en-GB/slots/collection")
-        except:
-            print("Failure gotta return early")
-            return
+        self.driver.get("https://www.tesco.com/groceries/en-GB/slots/collection")
 
         for start_date in [today, next_week, fortnite]:
             # Scan 3 week window
@@ -165,6 +161,8 @@ class TescoScraper:
                 self.driver.get(self.delivery_url_with_date_and_slot_group % (start_date, 1))
             except Exception as e:
                 print("Exception caught from delivery load at slow group")
+                print(e)
+                print("Invalid session not sure why")
                 return
 
             # try to search for delivery slots next
@@ -210,6 +208,7 @@ class TescoScraper:
 if __name__ == '__main__':
     scraper = TescoScraper()
     scraper.setupSelenium()
+    scraper.sendEmail("testing email", datetime.now())
 
     @tl.job(interval=timedelta(minutes=10))
     def run():
