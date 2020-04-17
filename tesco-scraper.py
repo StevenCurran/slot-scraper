@@ -41,15 +41,16 @@ class TescoScraper:
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
+        chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
+        self.driver = Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        # chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
         chrome_options.add_argument(
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"')
 
-        self.driver = Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
+
 
     def sendEmail(self, location: str, date):
         send_grid_key = os.environ.get('send_grid')
@@ -210,6 +211,7 @@ if __name__ == '__main__':
     # scraper = TescoScraper()
     # scraper.setupSelenium()
     # scraper.sendEmail("testing email", datetime.now())
+    print("Starting")
 
     @tl.job(interval=timedelta(minutes=15))
     def run():
