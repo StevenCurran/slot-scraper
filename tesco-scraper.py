@@ -41,15 +41,16 @@ class TescoScraper:
         CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
 
         chrome_options = Options()
+        chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
+        self.driver = Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--disable-gpu")
-        # chrome_options.add_argument("--window-size=1920,1080")
+        chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM')
         chrome_options.add_argument(
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"')
 
-        self.driver = Chrome(executable_path=CHROMEDRIVER_PATH, options=chrome_options)
+
 
     def sendEmail(self, location: str, date):
         send_grid_key = os.environ.get('send_grid')
@@ -147,7 +148,7 @@ class TescoScraper:
                         lambda driver: driver.find_elements_by_class_name("available-slot--button"))
                     buttons = [b for b in buttons if b.text is not '']
                     if len(buttons) > 0:
-                        print("Collection for " + start_date + " at" + tesco_location)
+                        print("Collection for " + start_date + " at " + self.locations[tesco_location])
                         [print(b.txext) for b in buttons]
                         print()
                         if os.environ.get('auto_book_enabled') == '1':
@@ -210,6 +211,7 @@ if __name__ == '__main__':
     # scraper = TescoScraper()
     # scraper.setupSelenium()
     # scraper.sendEmail("testing email", datetime.now())
+    print("Starting")
 
     @tl.job(interval=timedelta(minutes=15))
     def run():
