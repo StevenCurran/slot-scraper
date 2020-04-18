@@ -211,7 +211,7 @@ if __name__ == '__main__':
     # scraper = TescoScraper()
     # scraper.setupSelenium()
     # scraper.sendEmail("testing email", datetime.now())
-    print("Starting")
+    # print("Starting")
 
     @tl.job(interval=timedelta(minutes=15))
     def run():
