@@ -117,7 +117,7 @@ class TescoScraper:
             time.sleep(1)
 
         time.sleep(5)
-        print("Login Complete")
+        # print("Login Complete")
 
 
 
@@ -208,10 +208,6 @@ class TescoScraper:
 
 
 if __name__ == '__main__':
-    # scraper = TescoScraper()
-    # scraper.setupSelenium()
-    # scraper.sendEmail("testing email", datetime.now())
-    print("Starting")
 
     @tl.job(interval=timedelta(minutes=15))
     def run():
