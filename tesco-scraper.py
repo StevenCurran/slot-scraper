@@ -22,9 +22,9 @@ class TescoScraper:
     twilio_auth = os.environ.get('twilio_auth')
 
     locations = {'7268': "Banbridge",
-                 '7615': 'Craigavon',
-                 '7214': 'Lisburn',
-                 '7275': 'Newry'}
+                 '7615': 'Craigavon'}
+                 # '7214': 'Lisburn'}
+                 # '7275': 'Newry'}
 
     phone_numbers = os.environ.get('phone_numbers').split(",")
     print(email)
@@ -125,7 +125,7 @@ class TescoScraper:
     def scanForSlots(self):
         print("scanning " + str(datetime.now()))
 
-        today = (datetime.now()).strftime('%Y-%m-%d')
+        today = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
         next_week = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
         fortnite = (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')
 
